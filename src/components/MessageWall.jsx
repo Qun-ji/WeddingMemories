@@ -77,8 +77,21 @@ export default function MessageWall({ cloudName, uploadPreset }) {
             </div>
             {m.text && <div>{m.text}</div>}
             <div className="media">
-              {m.image_url && <img src={m.image_url} alt="img" style={{maxWidth: '100%', borderRadius: 12}} />}
-              {m.audio_url && <audio controls src={m.audio_url} />}
+              {message.image_url && (
+                  <img
+                      src={message.image_url}
+                      alt="上传的图片"
+                      className="max-w-xs rounded-lg shadow-md"
+                  />
+              )}
+
+              {message.audio_url && (
+                  <audio controls className="mt-2">
+                    <source src={message.audio_url} type="audio/mpeg" />
+                    您的浏览器不支持音频播放
+                  </audio>
+              )}
+
             </div>
           </div>
         ))}
