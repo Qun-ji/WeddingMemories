@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { fetchMessages, createMessage, uploadToCloudinary } from '../lib/api.js'
+import { fetchMessages, createMessage, uploadFile } from '../lib/api.js'
 
 export default function MessageWall({ cloudName, uploadPreset }) {
   const [messages, setMessages] = useState([])
@@ -30,11 +30,11 @@ export default function MessageWall({ cloudName, uploadPreset }) {
       let imageUrl = ''
       let audioUrl = ''
       if (imageFile) {
-        const r = await uploadToCloudinary(imageFile, { cloudName, uploadPreset, resourceType: 'image' })
+        const r = await uploadFile(imageFile, { cloudName, uploadPreset, resourceType: 'image' })
         imageUrl = r.secure_url
       }
       if (audioFile) {
-        const r = await uploadToCloudinary(audioFile, { cloudName, uploadPreset, resourceType: 'video' })
+        const r = await uploadFile(audioFile, { cloudName, uploadPreset, resourceType: 'video' })
         audioUrl = r.secure_url
       }
       await createMessage({ username, text, imageUrl, audioUrl })
