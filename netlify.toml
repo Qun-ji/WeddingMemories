@@ -1,0 +1,19 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+  external_node_modules = ["@neondatabase/serverless"]
+
+# Redirect API routes to Netlify Functions
+[[redirects]]
+  from = "/api/messages"
+  to = "/.netlify/functions/getMessages"
+  status = 200
+
+[[redirects]]
+  from = "/api/messages/new"
+  to = "/.netlify/functions/postMessage"
+  status = 200
