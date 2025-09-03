@@ -1,32 +1,39 @@
-export default async (req, context) => {
-  try {
-    const form = await req.formData()
-    const file = form.get("file")
+// src/lib/api.js
 
-    // 转换为 Buffer 传给又拍云
-    const arrayBuffer = await file.arrayBuffer()
-    const buffer = Buffer.from(arrayBuffer)
+// 获取留言
+export async function fetchMessages() {
+  const res = await fetch('/.netlify/functions/getMessages', { cache: 'no-store' })
+  if (!res.ok) throw new Error('获取留言失败')
+  return res.json()
+}
 
-    const upyunRes = await fetch(`https://v0.api.upyun.com/${process.env.UPYUN_BUCKET}/${file.name}`, {
-      method: "PUT",
-      headers: {
-        Authorization: "Basic " + Buffer.from(process.env.UPYUN_OPERATOR + ":" + process.env.UPYUN_PASSWORD).toString("base64"),
-        "Content-Length": buffer.length
-      },
-      body: buffer
-    })
-
-    if (!upyunRes.ok) {
-      throw new Error(await upyunRes.text())
-    }
-
-    const url = `https://${process.env.UPYUN_DOMAIN}/${file.name}`
-
-    return new Response(JSON.stringify({ url }), {
-      status: 200,
-      headers: { "content-type": "application/json" }
-    })
-  } catch (err) {
-    return new Response(`上传失败: ${err.message}`, { status: 500 })
+// 提交文字留言
+export async function createMessage(payload) {
+  const res = await fetch('/.netlify/functions/postMessage', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+  if (!res.ok) {
+    const text = await res.text()
+    throw new Error(text || '提交失败')
   }
+  return res.json()
+}
+
+// 上传文件（图片、音频等）
+export async function uploadFile(file) {
+  const formData = new FormData()
+  formData.append('file', file)
+
+  const res = await fetch('/.netlify/functions/upload', {
+    method: 'POST',
+    body: formData,
+  })
+
+  if (!res.ok) {
+    throw new Error(await res.text())
+  }
+
+  return res.json()  // { url: "https://xxx.upcdn.net/xxx.png" }
 }
