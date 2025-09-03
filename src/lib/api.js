@@ -1,39 +1,32 @@
-// 获取留言
-export async function fetchMessages() {
-  const res = await fetch('/.netlify/functions/getMessages', { cache: 'no-store' })
-  if (!res.ok) throw new Error('获取留言失败')
-  return res.json()
-}
+export default async (req, context) => {
+  try {
+    const form = await req.formData()
+    const file = form.get("file")
 
-// 创建留言（文字、图片、音频的URL存数据库）
-export async function createMessage(payload) {
-  const res = await fetch('/.netlify/functions/postMessage', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  })
-  if (!res.ok) {
-    const text = await res.text()
-    throw new Error(text || '提交失败')
+    // 转换为 Buffer 传给又拍云
+    const arrayBuffer = await file.arrayBuffer()
+    const buffer = Buffer.from(arrayBuffer)
+
+    const upyunRes = await fetch(`https://v0.api.upyun.com/${process.env.UPYUN_BUCKET}/${file.name}`, {
+      method: "PUT",
+      headers: {
+        Authorization: "Basic " + Buffer.from(process.env.UPYUN_OPERATOR + ":" + process.env.UPYUN_PASSWORD).toString("base64"),
+        "Content-Length": buffer.length
+      },
+      body: buffer
+    })
+
+    if (!upyunRes.ok) {
+      throw new Error(await upyunRes.text())
+    }
+
+    const url = `https://${process.env.UPYUN_DOMAIN}/${file.name}`
+
+    return new Response(JSON.stringify({ url }), {
+      status: 200,
+      headers: { "content-type": "application/json" }
+    })
+  } catch (err) {
+    return new Response(`上传失败: ${err.message}`, { status: 500 })
   }
-  return res.json()
-}
-
-// 上传文件到又拍云（替换掉 Cloudinary）
-export async function uploadFile(file) {
-  const formData = new FormData()
-  formData.append("file", file)
-
-  const res = await fetch('/.netlify/functions/upload', {
-    method: 'POST',
-    body: formData,
-  })
-
-  if (!res.ok) {
-    const text = await res.text()
-    throw new Error(text || '上传失败')
-  }
-
-  const data = await res.json()
-  return data.url   // 又拍云返回的外链地址
 }
