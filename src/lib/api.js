@@ -1,11 +1,11 @@
 export async function fetchMessages() {
-  const res = await fetch('/api/messages', { cache: 'no-store' })
+  const res = await fetch('/.netlify/functions/getMessages', { cache: 'no-store' })
   if (!res.ok) throw new Error('获取留言失败')
   return res.json()
 }
 
 export async function createMessage(payload) {
-  const res = await fetch('/api/messages/new', {
+  const res = await fetch('/.netlify/functions/postMessage', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
