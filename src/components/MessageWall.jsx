@@ -27,15 +27,15 @@ export default function MessageWall({ cloudName, uploadPreset }) {
     setSubmitting(true)
     setError('')
     try {
-      let imageUrl = ''
-      let audioUrl = ''
+      let image_url = ''
+      let audio_url = ''
       if (imageFile) {
         const r = await uploadFile(imageFile, { cloudName, uploadPreset, resourceType: 'image' })
-        imageUrl = r.secure_url
+        image_url = r.secure_url
       }
       if (audioFile) {
         const r = await uploadFile(audioFile, { cloudName, uploadPreset, resourceType: 'video' })
-        audioUrl = r.secure_url
+        audio_url = r.secure_url
       }
       await createMessage({ username, text, image_url, audio_url })
       setUsername('')
