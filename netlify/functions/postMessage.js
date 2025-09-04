@@ -5,6 +5,8 @@ export default async (req) => {
     const body = await req.json()
     const { username, text, image_url, audio_url } = body
 
+    console.log("收到的数据：", body)  // ✅ 调试用
+
     const sql = neon(process.env.DATABASE_URL)
 
     await sql`
