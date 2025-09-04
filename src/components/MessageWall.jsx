@@ -37,7 +37,7 @@ export default function MessageWall({ cloudName, uploadPreset }) {
         const r = await uploadFile(audioFile, { cloudName, uploadPreset, resourceType: 'video' })
         audioUrl = r.secure_url
       }
-      await createMessage({ username, text, image_Url, audio_Url })
+      await createMessage({ username, text, image_url, audio_url })
       setUsername('')
       setText('')
       setImageFile(null)
